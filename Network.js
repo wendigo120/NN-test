@@ -20,15 +20,30 @@ Network.prototype.runOnce = function() {
 
 Network.prototype.train = function() {
     this.trainingIndex = 0;
-    // TODO: setup correct nr of inputs
-    for (var i = 0; i < 1000; i++) {
+    var test = [];
+    for (var i = 0; i < this.trainingData.length * 3000; i++) {
         this._trainOnce();
-        console.log(this.calculateOutputError());
+
+        test.push(this.layers[this.layers.length - 1][1].output)
+        if (this.trainingIndex === this.trainingData.length - 1) {
+            this._print(i, test);
+            test = [];
+        }
+
         this.trainingIndex = i % this.trainingData.length;
         for (var j = 0; j < this.trainingData[this.trainingIndex].inputs.length; j++) {
             this.layers[0][j].output = this.trainingData[this.trainingIndex].inputs[j];
         }
     }
+};
+
+Network.prototype._print = function(set, outputArr) {
+    document.write("Outputs up to set " + set + "<br>");
+
+    for (var i = 0; i < this.trainingData.length; i++) {
+        document.write(this.trainingData[i].inputs + " should be " + this.trainingData[i].outputs + " but was " + outputArr[i] + "<br>")
+    }
+    document.write("<br>");
 };
 
 Network.prototype._trainOnce = function() {
@@ -46,7 +61,7 @@ Network.prototype._trainOnce = function() {
     errorsByLayer[this.layers.length - 1] = pdOutputErrors;
     for (var i = this.layers.length - 2; i >= 1; i--) {
         errorsByLayer[i] = [];
-        for (var neuronIndex = 0; neuronIndex < this.layers[i].length; neuronIndex++) {
+        for (var neuronIndex = 1; neuronIndex < this.layers[i].length; neuronIndex++) {
             var totalError = 0;
 
             for (var j = 1; j < this.layers[i + 1].length; j++) {
@@ -58,7 +73,15 @@ Network.prototype._trainOnce = function() {
     }
 
     // Update weights for everybody
-    
+    for (var i = this.layers.length - 1; i >= 1; i--) {
+        for (var neuronIndex = 1; neuronIndex < this.layers[i].length; neuronIndex++) {
+            for (var input = 0; input < this.layers[i][neuronIndex].inputs.length; input++) {
+                var errorWRTWeight = errorsByLayer[i][neuronIndex - 1] * this.layers[i][neuronIndex].inputs[input].input.output;
+
+                this.layers[i][neuronIndex].inputs[input].weight -= this.learningRate * errorWRTWeight;
+            }
+        }
+    }
 };
 
 Network.prototype.calculateOutputError = function() {
