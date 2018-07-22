@@ -3,11 +3,14 @@ var ErrorFunctions = {
     ABSOLUTESQUARED: i++, // TODO: implement different error functions
 }
 
-var Network = function(trainingData, learningRate) {
+var Network = function(trainingData, learningRate, outputInterval) {
     this.layers = [];
 
-    this.trainingData = trainingData || [];
+    this.trainingData = trainingData;
     this.learningRate = learningRate;
+    this.outputInterval = outputInterval
+
+    this.lastFullSet = "";
 };
 
 Network.prototype.runOnce = function() {
@@ -18,32 +21,40 @@ Network.prototype.runOnce = function() {
     }
 };
 
-Network.prototype.train = function() {
+Network.prototype.train = function(runs) {
     this.trainingIndex = 0;
-    var test = [];
-    for (var i = 0; i < this.trainingData.length * 3000; i++) {
-        this._trainOnce();
-
-        test.push(this.layers[this.layers.length - 1][1].output)
-        if (this.trainingIndex === this.trainingData.length - 1) {
-            this._print(i, test);
-            test = [];
+    var runs = runs || 0;
+    setTimeout(() => {
+        var test = [];
+        for (var i = 0; i < this.trainingData.length * this.outputInterval; i++) {
+            this.trainingIndex = i % this.trainingData.length;
+            for (var j = 0; j < this.trainingData[this.trainingIndex].inputs.length; j++) {
+                this.layers[0][j].output = this.trainingData[this.trainingIndex].inputs[j];
+            }
+            
+            this._trainOnce();
+            
+            test.push(this.layers[this.layers.length - 1][1].output);
         }
 
-        this.trainingIndex = i % this.trainingData.length;
-        for (var j = 0; j < this.trainingData[this.trainingIndex].inputs.length; j++) {
-            this.layers[0][j].output = this.trainingData[this.trainingIndex].inputs[j];
-        }
-    }
+        this._storeOutput(runs, test);
+
+        this.train(runs + this.outputInterval);
+    }, 0);
 };
 
-Network.prototype._print = function(set, outputArr) {
-    document.write("Outputs up to set " + set + "<br>");
+Network.prototype._storeOutput = function(set, outputArr) {
+    this.lastFullSet = "";
+    this.lastFullSet += ("Run count: " + set + "<br><table><tr><th>Inputs</th><th>Expected</th><th>Actual</th></tr>");
 
     for (var i = 0; i < this.trainingData.length; i++) {
-        document.write(this.trainingData[i].inputs + " should be " + this.trainingData[i].outputs + " but was " + outputArr[i] + "<br>")
+        this.lastFullSet += ("<tr><td>" + this.trainingData[i].inputs + "</td><td>" + this.trainingData[i].outputs + "</td><td>" + outputArr[i] + "</td></tr>")
     }
-    document.write("<br>");
+    this.lastFullSet += ("</table>");
+};
+
+Network.prototype.print = function() {
+    document.getElementById("output").innerHTML = this.lastFullSet;
 };
 
 Network.prototype._trainOnce = function() {
