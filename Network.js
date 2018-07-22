@@ -3,10 +3,11 @@ var ErrorFunctions = {
     ABSOLUTESQUARED: i++, // TODO: implement different error functions
 }
 
-var Network = function(trainingData) {
+var Network = function(trainingData, learningRate) {
     this.layers = [];
 
     this.trainingData = trainingData || [];
+    this.learningRate = learningRate;
 };
 
 Network.prototype.runOnce = function() {
@@ -19,9 +20,14 @@ Network.prototype.runOnce = function() {
 
 Network.prototype.train = function() {
     this.trainingIndex = 0;
+    // TODO: setup correct nr of inputs
     for (var i = 0; i < 1000; i++) {
         this._trainOnce();
+        console.log(this.calculateOutputError());
         this.trainingIndex = i % this.trainingData.length;
+        for (var j = 0; j < this.trainingData[this.trainingIndex].inputs.length; j++) {
+            this.layers[0][j].output = this.trainingData[this.trainingIndex].inputs[j];
+        }
     }
 };
 

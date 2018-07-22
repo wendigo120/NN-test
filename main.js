@@ -1,5 +1,5 @@
 
-var n = new Network([
+var trainingData = [
     {
         inputs: [0, 0], 
         outputs: [0]
@@ -16,7 +16,9 @@ var n = new Network([
         inputs: [1, 1], 
         outputs: [0]
     }
-]);
+]
+
+var n = new Network(trainingData, 0.5);
 
 n.addInput(0);
 n.addInput(0);

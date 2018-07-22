@@ -24,7 +24,7 @@ Neuron.prototype.addInput = function(input, weight) {
 };
 
 Neuron.prototype.calculateError = function(targetOutput) {
-    return 0.5 * (targetOutput - this.output) ^ 2
+    return 0.5 * Math.pow((targetOutput - this.output), 2);
 };
 
 Neuron.prototype.calculatePDErrorWRTOutput = function(targetOutput) {
