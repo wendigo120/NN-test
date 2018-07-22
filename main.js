@@ -1,17 +1,17 @@
 
 var trainingData = []
 
-var dataSize = 50;
+var dataSize = 100;
 for (var i = 0; i < dataSize; i++) {
     var input = (1 / dataSize) * i;
-    var output = Math.round((Math.sin(input * 2 * Math.PI) + 1) / 2);
+    var output = (Math.sin(input * 2 * Math.PI) + 1) / 2;
     trainingData.push({
         inputs: [input],
         outputs: [output]
     });
 }
 
-var n = new Network(trainingData, 0.5, 199);
+var n = new Network(trainingData, 0.5, 97);
 
 n.addInput(0);
 for (var i = 1; i < 5; i++) {
