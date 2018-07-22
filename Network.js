@@ -1,7 +1,3 @@
-var i = 0;
-var ErrorFunctions = {
-    ABSOLUTESQUARED: i++, // TODO: implement different error functions
-}
 
 var Network = function(trainingData, learningRate, outputInterval) {
     this.layers = [];
