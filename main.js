@@ -29,5 +29,4 @@ for (var i = 1; i < 3; i++) {
 var neuron = new Neuron(NeuronTypes.TANH);
 n.addNeuron(neuron, 3);
 
-n.runOnce();
-console.log(n.getOutputs());
+n.train();

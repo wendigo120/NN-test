@@ -10,10 +10,7 @@ var DeltaStep = 0.0001;
 
 var Neuron = function(type, startOutput) {
     if (type !== NeuronTypes.LOCKED) {
-        this.inputs = [{
-            input: new Neuron(NeuronTypes.LOCKED, 1),
-            weight: (Math.random() * 2) - 1,
-        }];
+        this.inputs = [];
     }
     this.type = type;
     this.output = startOutput || 0;
@@ -26,7 +23,22 @@ Neuron.prototype.addInput = function(input, weight) {
     })
 };
 
-Neuron.prototype.calculateDelta
+Neuron.prototype.calculateError = function(targetOutput) {
+    return 0.5 * (targetOutput - this.output) ^ 2
+};
+
+Neuron.prototype.calculatePDErrorWRTOutput = function(targetOutput) {
+    return -(targetOutput - this.output);
+};
+
+Neuron.prototype.calculatePDTotalNetInputWRTInput = function() {
+    return this.output * (1 - this.output);
+};
+
+Neuron.prototype.calculatePDErrorWRTTotalInput = function(targetOutput) {
+    return this.calculatePDErrorWRTOutput(targetOutput) * this.calculatePDTotalNetInputWRTInput();
+};
+
 Neuron.prototype.doMath = function() {
     switch (this.type) {
         case NeuronTypes.STEP: return this._stepFunction();

@@ -2,6 +2,7 @@ var i = 0;
 var ErrorFunctions = {
     ABSOLUTESQUARED: i++, // TODO: implement different error functions
 }
+
 var Network = function(trainingData) {
     this.layers = [];
 
@@ -19,19 +20,48 @@ Network.prototype.runOnce = function() {
 Network.prototype.train = function() {
     this.trainingIndex = 0;
     for (var i = 0; i < 1000; i++) {
-        this.runOnce();
-        var error = this._getError();
-        // change weights
+        this._trainOnce();
+        this.trainingIndex = i % this.trainingData.length;
     }
 };
 
-Network.prototype._getError = function() {
-    var currentOutputs = this.getOutputs();
-    var error = 0;
-    for(var i = 0; i < currentOutputs.length; i++) {
-        error += (this.trainingData[this.trainingIndex].outputs[i] - currentOutputs[i]) ^ 2;
+Network.prototype._trainOnce = function() {
+    this.runOnce();
+
+    // Calculate errors on output neurons
+    var outputs = this.getOutputs();
+    var pdOutputErrors = [];
+    for (var i = 0; i < outputs.length; i++) {
+        pdOutputErrors.push(outputs[i].calculatePDErrorWRTTotalInput(this.trainingData[this.trainingIndex].outputs[i]));
     }
-    return Math.abs(error);
+
+    // Calculater errors on hidden layer neurons
+    var errorsByLayer = [];
+    errorsByLayer[this.layers.length - 1] = pdOutputErrors;
+    for (var i = this.layers.length - 2; i >= 1; i--) {
+        errorsByLayer[i] = [];
+        for (var neuronIndex = 0; neuronIndex < this.layers[i].length; neuronIndex++) {
+            var totalError = 0;
+
+            for (var j = 1; j < this.layers[i + 1].length; j++) {
+                totalError += errorsByLayer[i + 1][j - 1] * this.layers[i + 1][j].inputs[neuronIndex].weight;
+            }
+
+            errorsByLayer[i].push(totalError * this.layers[i][neuronIndex].calculatePDTotalNetInputWRTInput());
+        }
+    }
+
+    // Update weights for everybody
+    
+};
+
+Network.prototype.calculateOutputError = function() {
+    var outputs = this.getOutputs();
+    var totalError = 0;
+    for(var i = 0; i < outputs.length; i++) {
+        totalError += outputs[i].calculateError(this.trainingData[this.trainingIndex].outputs[i]);
+    }
+    return totalError;
 };
 
 Network.prototype.addNeuron = function(neuron, layer) {
@@ -62,7 +92,7 @@ Network.prototype.addInput = function(input) {
 Network.prototype.getOutputs = function() {
     var outputs = [];
     for (var i = 1; i < this.layers[this.layers.length - 1].length; i++) {
-        outputs.push(this.layers[this.layers.length - 1][i].output);
+        outputs.push(this.layers[this.layers.length - 1][i]);
     }
     return outputs;
 };
