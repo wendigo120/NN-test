@@ -11,22 +11,26 @@ for (var i = 0; i < dataSize; i++) {
     });
 }
 
-var n = new Network(trainingData, 0.5, 97);
+var neuralNetwork = new Network(trainingData, 0.5, 97);
 
-n.addInput(0);
+neuralNetwork.addInput(0);
 for (var i = 1; i < 5; i++) {
     for (var j = 0; j < 5; j++) {
         var neuron = new Neuron(NeuronTypes.TANH);
-        n.addNeuron(neuron, i);
+        neuralNetwork.addNeuron(neuron, i);
     }
 }
 var neuron = new Neuron(NeuronTypes.TANH);
-n.addNeuron(neuron, 5);
-
-setTimeout(function() {
-    n.train();
-}, 0);
+neuralNetwork.addNeuron(neuron, 5);
 
 setInterval(() => {
-    n.print();
-}, 16);
+    neuralNetwork.print();
+}, 33);
+
+var run = function() {
+    neuralNetwork.train();
+};
+
+var dumpNN = function() {
+    console.log(JSON.stringify(neuralNetwork));
+};
