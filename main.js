@@ -11,7 +11,7 @@ for (var i = 0; i < dataSize; i++) {
     });
 }
 
-var neuralNetwork = new Network(trainingData, 0.5, 97);
+var neuralNetwork = new Network(trainingData, 0.5, 50);
 
 neuralNetwork.addInput(0);
 for (var i = 1; i < 5; i++) {

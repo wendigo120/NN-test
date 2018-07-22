@@ -29,8 +29,10 @@ Network.prototype.train = function(runs) {
             }
             
             this._trainOnce();
-            
-            test.push(this.layers[this.layers.length - 1][1].output);
+
+            if (i >= this.trainingData.length * (this.outputInterval - 1)) {
+                test.push(this.layers[this.layers.length - 1][1].output);
+            }
         }
 
         this._storeOutput(runs, test);
